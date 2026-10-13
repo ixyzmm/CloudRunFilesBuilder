@@ -1,0 +1,26 @@
+name: Auto Sync Upstream
+
+on:
+  schedule:
+    # 每天北京时间 0:00 自动运行一次（cron 采用 UTC 时间，这里设置的是 16:00 UTC）
+    - cron: '0 16 * * *'
+  workflow_dispatch: # 允许你在网页上手动点击按钮触发同步
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Sync upstream changes
+        uses: aormsby/Fork-Sync-With-Upstream-Action@v3.4.1
+        with:
+          upstream_sync_repo: 'wkccd/CloudRunFilesBuilder'
+          upstream_sync_branch: 'daily'
+          target_sync_branch: 'daily'   # 如果你当前的主分支是 daily 请保持一致
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          test_mode: false
+        id: sync
